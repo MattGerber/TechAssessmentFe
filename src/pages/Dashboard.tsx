@@ -3,22 +3,7 @@ import DataTable from "react-data-table-component";
 import { createProduct, deleteProducts, getProducts } from "../api/ProductsApi";
 import { orderColumns, productColumns } from "../constants";
 import { createOrder, getOrders } from "../api/OrdersApi";
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  paid: boolean;
-  customerId: string;
-  products: string[];
-  total: number;
-}
-
+import { Order, Product } from "../Helpers/interfaces";
 interface SelectedRows {
   allSelected: boolean;
   selectedCount: number;
@@ -39,13 +24,13 @@ export default function Dashboard(): JSX.Element {
     });
     getOrders().then((data) => {
       setOrdersList(data);
-    })
+    });
   }, []);
 
   const handleSelect = (selected: SelectedRows) => {
     if (selected.selectedRows) {
-      const productIds = selected.selectedRows.map((i) => {
-        return i.id;
+      const productIds = selected.selectedRows.map((product) => {
+        return product.id;
       });
       setSelectedProducts(productIds);
     }
@@ -65,14 +50,16 @@ export default function Dashboard(): JSX.Element {
 
   const onCreateOrder = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    let total: number = 0
+    let total: number = 0;
     if (selectedProducts) {
       selectedProducts.map((x) => {
         console.log(productsList.find((product) => product.id === x)?.price);
-        const product = productsList.find((product) => product.id == x)?.price as number ?? 0;
-        total = ((+total)+(+product));
+        const product =
+          (productsList.find((product) => product.id == x)?.price as number) ??
+          0;
+        total = +total + +product;
         //WTF Typescript
-      })
+      });
     }
     if (selectedProducts?.length) createOrder(false, selectedProducts, total);
     else alert("No products Selected");
@@ -95,12 +82,7 @@ export default function Dashboard(): JSX.Element {
       <br />
       <div>
         <h2>Orders</h2>
-        <DataTable
-          columns={orderColumns}
-          data={OrdersList}
-          pagination
-          selectableRows
-        />
+        <DataTable columns={orderColumns} data={OrdersList} pagination />
       </div>
       <br />
       <h2>Create Product</h2>

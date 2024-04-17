@@ -15,6 +15,21 @@ export const getProducts = () => {
 	return response;
 };
 
+export const getProduct = (id: string) => {
+  const response = api
+    .get(`api/product/${id}`)
+    .then((res) => {
+      return res.data;
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((e) => {
+      alert(e);
+    });
+	return response;
+};
+
 export const createProduct = (name: string, description: string, price: number) => {
   return api
     .post("api/product/", { name, description, price })

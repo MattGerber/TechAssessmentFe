@@ -43,10 +43,12 @@ export const productColumns: TableColumn<Product>[] = [
   {
     name: "id",
     selector: (row) => row.id,
+    cell: (row) => <a href={`http://localhost:5173/product/${row.id}`}>{row.id}</a>,
   },
   {
     name: "Name",
     selector: (row) => row.name,
+    cell: (row) => <a href={`http://localhost:5173/product/${row.id}`}>{row.name}</a>,
   },
   {
     name: "description",

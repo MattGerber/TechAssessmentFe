@@ -11,7 +11,9 @@ interface FromProps{
 }
 
 export default function Form({route, method}: FromProps): JSX.Element {
+    const [name, setName] = useState<string>("");
     const [username, setUsername] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -21,11 +23,11 @@ export default function Form({route, method}: FromProps): JSX.Element {
         e.preventDefault();
 
         try {
-            const res = await api.post(route, {username, password})
+
+            const res = method == "Register" ? await api.post(route, {name, password, email}) : await api.post(route, {username, password})
             if (method === "Login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                console.log("dsafdsaf");
                 navigate("/");
             } else {
                 navigate("/login");
@@ -43,10 +45,18 @@ export default function Form({route, method}: FromProps): JSX.Element {
         <input 
         type="text" 
         className="form-input"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        value={method == "Register" ? name : username}
+        onChange={method == "Register" ? (e) => setName(e.target.value) : (e) => setUsername(e.target.value)}
         placeholder="Username"
         />
+        {method === "Register" && 
+        <input 
+        type="text" 
+        className="form-input"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+        />}
         <input 
         type="password" 
         className="form-input"
