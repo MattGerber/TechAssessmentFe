@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 import { ACCESS_TOKEN } from "./constants";
 
 const api = axios.create({
@@ -6,7 +6,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(
-	(config: InternalAxiosRequestConfig<any>): InternalAxiosRequestConfig<any> => {
+	(config) => {
 		const token = localStorage.getItem(ACCESS_TOKEN);
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`

@@ -5,7 +5,7 @@ import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
 import { useState, useEffect, ReactNode, PropsWithChildren } from "react";
 
 export default function ProtectedRoute(props: PropsWithChildren): ReactNode {
-	const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+	const [isAuthorized, setIsAuthorized] = useState<boolean>()
 
 	useEffect(() => {
 		auth().catch(() => {setIsAuthorized(false)});
@@ -17,7 +17,7 @@ export default function ProtectedRoute(props: PropsWithChildren): ReactNode {
 			const res = await api.post("/api/token/refresh/", {
 				refresh: refreshToken,
 			});
-			if (res.status == 200) {
+			if (res.status === 200) {
 				localStorage.setItem(ACCESS_TOKEN, res.data.access);
 				setIsAuthorized(true)
 			} else
@@ -45,7 +45,7 @@ export default function ProtectedRoute(props: PropsWithChildren): ReactNode {
 		}
 	}
 
-	if (isAuthorized) {
+	if (isAuthorized == undefined) {
 		return <div>Loading</div>
 	}
 	return isAuthorized ? props.children : <Navigate to="/login"/>
