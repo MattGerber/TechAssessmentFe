@@ -1,75 +1,110 @@
 import { useState, useEffect } from "react";
-import DataTable, { TableColumn } from 'react-data-table-component';
-import api from "../api";
+import DataTable from "react-data-table-component";
+import { createProduct, deleteProducts, getProducts } from "../api/ProductsApi";
+import { orderColumns, productColumns } from "../constants";
+import { createOrder, getOrders } from "../api/OrdersApi";
 
 interface Product {
+  id: number;
   name: string;
   description: string;
   price: number;
 }
 
-const columns: TableColumn<Product>[] = [
-	{
-		name: "Name",
-		selector: row => row.name,
-	},
-	{
-		name: "description",
-		selector: row => row.description,
-	},
-	{
-		name: "price",
-		selector: row => row.price,
-	},
-]
+interface Order {
+  id: string;
+  paid: boolean;
+  customerId: string;
+  products: string[];
+  total: number;
+}
+
+interface SelectedRows {
+  allSelected: boolean;
+  selectedCount: number;
+  selectedRows: Product[];
+}
 
 export default function Dashboard(): JSX.Element {
   const [productsList, setProductsList] = useState<Product[]>([]);
+  const [OrdersList, setOrdersList] = useState<Order[]>([]);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const [newProduct, setNewProduct] = useState<Product>();
+  const [selectedProducts, setSelectedProducts] = useState<number[]>();
 
   useEffect(() => {
-    getProducts();
+    getProducts().then((data) => {
+      setProductsList(data);
+    });
+    getOrders().then((data) => {
+      setOrdersList(data);
+    })
   }, []);
 
-  const getProducts = () => {
-    api
-      .get("api/product/")
-      .then((res) => {
-        return res.data;
-      })
-      .then((data) => {
-		console.log(data);
-        setProductsList(data);
-      })
-      .catch((e) => {
-        alert(e);
+  const handleSelect = (selected: SelectedRows) => {
+    if (selected.selectedRows) {
+      const productIds = selected.selectedRows.map((i) => {
+        return i.id;
       });
+      setSelectedProducts(productIds);
+    }
   };
 
-  const createProduct = (e) => {
+  const onCreate = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    api
-      .post("api/product/", { name, description, price })
-      .then((res) => {
-        if (res.status == 201) alert("sucesss");
-        else alert("failed!");
-      })
-      .catch((err) => alert(err));
+    createProduct(name, description, price).then();
     getProducts();
+  };
+
+  const onDelete = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (selectedProducts?.length) deleteProducts(selectedProducts);
+    else alert("No products Selected");
+  };
+
+  const onCreateOrder = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    let total: number = 0
+    if (selectedProducts) {
+      selectedProducts.map((x) => {
+        console.log(productsList.find((product) => product.id === x)?.price);
+        const product = productsList.find((product) => product.id == x)?.price as number ?? 0;
+        total = ((+total)+(+product));
+        //WTF Typescript
+      })
+    }
+    if (selectedProducts?.length) createOrder(false, selectedProducts, total);
+    else alert("No products Selected");
   };
 
   return (
     <div>
       <div>
         <h2>Products</h2>
-		<DataTable columns={columns} data={productsList}></DataTable>
+        <DataTable
+          columns={productColumns}
+          data={productsList}
+          pagination
+          selectableRows
+          onSelectedRowsChange={handleSelect}
+        />
+        <button onClick={onDelete}>DELETE SELECTED</button>
+        <button onClick={onCreateOrder}>ORDER SELECTED</button>
       </div>
-		<br/>
+      <br />
+      <div>
+        <h2>Orders</h2>
+        <DataTable
+          columns={orderColumns}
+          data={OrdersList}
+          pagination
+          selectableRows
+        />
+      </div>
+      <br />
       <h2>Create Product</h2>
-      <form onSubmit={createProduct}>
+      <form onSubmit={onCreate}>
         <label>Name: </label>
         <br />
         <input
@@ -81,8 +116,8 @@ export default function Dashboard(): JSX.Element {
           }}
           value={name}
         />
-		<br />
-		<label>Description: </label>
+        <br />
+        <label>Description: </label>
         <br />
         <textarea
           id="description"
@@ -93,8 +128,8 @@ export default function Dashboard(): JSX.Element {
           }}
           value={description}
         />
-		<br />
-		<label>Price: </label>
+        <br />
+        <label>Price: </label>
         <br />
         <input
           type="text"

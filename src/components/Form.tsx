@@ -1,8 +1,9 @@
-import React, {EventHandler, FormEventHandler, useState} from "react"
+import React, {useState} from "react"
 import api from "../api"
 import { useNavigate } from "react-router-dom"
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 import "../styles/Form.css"
+import LoadingIndicator from "./LoadIndicator"
 
 interface FromProps{
     route: string
@@ -53,6 +54,7 @@ export default function Form({route, method}: FromProps): JSX.Element {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
         />
+         {loading && <LoadingIndicator />}
         <button className="form-button" type="submit">
             {method}
         </button>
