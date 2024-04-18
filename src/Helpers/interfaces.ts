@@ -5,6 +5,11 @@ export interface Product {
   price: number;
 }
 
+export interface ProductResponse {
+  product: Product
+}
+
+
 export interface Order {
   id: string;
   paid: boolean;

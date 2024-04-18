@@ -1,3 +1,4 @@
+import { ProductResponse } from "../Helpers/interfaces";
 import api from "../api";
 
 export const getProducts = () => {
@@ -15,8 +16,8 @@ export const getProducts = () => {
 	return response;
 };
 
-export const getProduct = (id: string) => {
-  const response = api
+export const getProduct = (id: string): Promise<ProductResponse> => {
+  const response: Promise<ProductResponse>  = api
     .get(`api/product/${id}`)
     .then((res) => {
       return res.data;

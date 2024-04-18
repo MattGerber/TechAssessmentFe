@@ -10,7 +10,7 @@ export default function ProductDetailPage() : JSX.Element {
 	useEffect(() => {
 		if (params.id) {
 			getProduct(params.id).then(response => {
-				setProductInfo(response);
+				setProductInfo(response.product);
 			});
 		}
 	}, [params]);
